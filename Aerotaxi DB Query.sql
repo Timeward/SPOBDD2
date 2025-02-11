@@ -72,12 +72,14 @@ CREATE TABLE Aircraft_Position (
     Aircraft_ID VARCHAR(6) PRIMARY KEY,
     Current_Location CHAR(4) NOT NULL
     FOREIGN KEY (Aircraft_ID) References Aircraft_TB
+    FOREIGN KEY (Current_Location) REFERENCES Serviced_Locations_TB
 )
 
 CREATE TABLE Crew_Position (
     Crew_ID INT PRIMARY KEY NOT NULL,
     Crew_Type VARCHAR(10) CHECK (Crew_Type IN ('Pilot', 'Attendant')),  -- Para saber se é piloto ou comissário
     Current_Location CHAR(4),  -- Base de operações ou localização atual
+    FOREIGN KEY (Current_Location) REFERENCES Serviced_Locations_TB
 )
 
 ALTER TABLE Pilots_TB
@@ -95,3 +97,31 @@ FOREIGN KEY (Mechanics_BOO) REFERENCES Serviced_Locations_TB
 ALTER TABLE Aircraft_TB
 ADD CONSTRAINT FK_Aircraft_Base
 FOREIGN KEY (Aircraft_Base) REFERENCES Serviced_Locations_TB
+
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 1;
+RECONFIGURE;
+GO
+
+CREATE OR ALTER TRIGGER TR_Clear_Flights_Midnight
+ON Flights_TB
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    -- Verificar se é meia-noite
+    IF CONVERT(TIME, GETDATE()) = '00:00:00'
+    BEGIN
+        DECLARE @filePath VARCHAR(255) = 'C:\Users\chase\OneDrive\Documents\SPOBDD2 Projeto\Flights_Backup_' + FORMAT(GETDATE(), 'yyyyMMdd') + '.txt';
+        DECLARE @cmdFlights NVARCHAR(MAX) = 
+        'bcp "SELECT * FROM Aerotaxi_DB.dbo.Flights_TB" queryout "' + @filePath + '" -c -T -S localhost';
+        EXEC xp_cmdshell @cmdFlights;
+        SET @filePath = 'CC:\Users\chase\OneDrive\Documents\SPOBDD2 Projeto\FlightCrew_Backup_' + FORMAT(GETDATE(), 'yyyyMMdd') + '.txt';
+        DECLARE @cmdCrew NVARCHAR(MAX) = 
+        'bcp "SELECT * FROM Aerotaxi_DB.dbo.Flight_Crew" queryout "' + @filePath + '" -c -T -S localhost';
+        EXEC xp_cmdshell @cmdCrew;
+        DELETE FROM Flight_Crew;
+        DELETE FROM Flights_TB;
+    END
+END;
+GO
