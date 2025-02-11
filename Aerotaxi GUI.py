@@ -7,7 +7,7 @@ import os
 server='localhost'
 database='Aerotaxi_DB'
 
-# Function to switch frames
+#Funcao para trocar frames
 def show_frame(frame):
     frame.tkraise()
 
@@ -22,7 +22,7 @@ def initialize_app():
 SERVER = 'localhost,1433'
 DATABASE = 'Aerotaxi_DB'
 
-#Contém a connection string do servidor, e prove feedback para sucesso ou falha da conexão
+#Contém a connection string do servidor, e provê feedback para sucesso ou falha da conexão
 def connect_to_db():
     try:
         conn = pdbc.connect(
@@ -38,12 +38,12 @@ def connect_to_db():
         messagebox.showerror("Erro", f"Erro ao conectar: {e}")
         return None
 
-# Create the main window
+# Cria a janela principal
 root = tk.Tk()
 root.title("Gerenciamento Interno")
 root.geometry("900x600")
 
-# Create frames
+# Cria os frames
 main_menu = ttk.Frame(root)
 Flight_Page = ttk.Frame(root)
 Aircraft_Page = ttk.Frame(root)
@@ -67,7 +67,7 @@ ttk.Button(main_menu, text="Mecanico/as", command=lambda: show_frame(GCrew_Page)
 ttk.Button(main_menu, text="Localizações", command=lambda: show_frame(Location_Page)).pack(pady=10)
 ttk.Button(main_menu, text="Rotas", command=lambda: show_frame(Route_Page)).pack(pady=10)
 
-# Page 1
+#Pagina de voos
 def load_flight_data():
     for row in flight_tree.get_children():
         flight_tree.delete(row)
@@ -143,6 +143,7 @@ flight_tree.column("Flight_Arrival", width=100, anchor="center")
 flight_tree.column("Flight_Passengers", width=150, anchor="center")
 flight_tree.column("Crew_Count", width=150, anchor="center")
 
+# Abre o iframe de adicionar voo
 def open_add_flight_page():
     add_flight_window = Toplevel(Flight_Page)
     add_flight_window.title("Adicionar Novo Voo")
@@ -363,6 +364,7 @@ def open_add_flight_page():
     # Botão para fechar a janela
     ttk.Button(add_flight_window, text="Fechar", command=add_flight_window.destroy).pack(pady=10)
 
+#abre o iframe de adicionar tripulacao ao voo
 def open_add_flight_crew_page(flight_id, min_crew_required):
     add_crew_window = Toplevel()
     add_crew_window.title("Adicionar Tripulação ao Voo")
@@ -598,6 +600,7 @@ def open_add_flight_crew_page(flight_id, min_crew_required):
     close_button = ttk.Button(add_crew_window, text="Fechar", command=add_crew_window.destroy, state="disabled")
     close_button.pack(pady=10)
 
+#iframe de remover voos da lista
 def open_delete_flight_window():
     delete_flight_window = Toplevel()
     delete_flight_window.title("Deletar Voo")
@@ -664,15 +667,7 @@ ttk.Button(Flight_Page, text="Deletar Voo", command=open_delete_flight_window).p
 # Botão para retornar ao menu principal
 ttk.Button(Flight_Page, text="Voltar ao Menu Principal", command=lambda: show_frame(main_menu)).pack(pady=10)
 
-#TODO: Application layer here must make sure of a number of things
-#A: The application must have an extra column that shows the count of crew assigned to the flight
-#B: When creating the flight, after inputing all the data, it progresses to a window interacting with the hidden Flight_Crew Table, automatically assigned to the current flight ID, to allow one to use dropdowns to select the crew. They must be allowed to make multiple selections
-#C: The user cannot be allowed to leave the crew selection window until the minimum crew has been assigned, based on the aircraft_crew column
-#D: A button can open the crew assignment window again
-#E: Crew selection has to be from both pilots and attendants.
-#F: The extra column must update to show the count of crew assigned to a flight by selecting the count from Flight_Crew_TB based on flight ID.
-
-# Page 2
+#pagina de aeronaves
 def load_aircraft_data():
     for row in aircraft_tree.get_children():
         aircraft_tree.delete(row)
@@ -843,6 +838,7 @@ def open_add_aircraft_page():
     ttk.Button(add_aircraft_window, text="Adicionar Aeronave", command=add_aircraft).pack(pady=20)
     ttk.Button(add_aircraft_window, text="Fechar", command=add_aircraft_window.destroy).pack(pady=10)
 
+#janela de remover aeronaves
 def open_delete_aircraft_window():
     # Novo Toplevel
     delete_aircraft_window = Toplevel(Aircraft_Page)
@@ -884,6 +880,7 @@ def open_delete_aircraft_window():
 
     ttk.Button(delete_aircraft_window, text="Fechar", command=delete_aircraft_window.destroy).pack(pady=10)
 
+#janela de mudar status da aeronave
 def open_change_status_window():
     # Novo Toplevel
     change_status_window = Toplevel(Aircraft_Page)
@@ -966,7 +963,7 @@ ttk.Button(Aircraft_Page, text="Voltar ao Menu Principal", command=lambda: show_
 Aircraft_Page.bind("<Visibility>", lambda e: load_aircraft_data())
 
 
-# Page 3
+# Janela de pilotos
 def load_pilot_data():
     for row in pilot_tree.get_children():
         pilot_tree.delete(row)
@@ -1179,7 +1176,7 @@ ttk.Button(Pilot_Page, text="Voltar ao Menu Principal", command=lambda: show_fra
 #Carregar os dados quando a pagina é carregada
 Pilot_Page.bind("<Visibility>", lambda e: load_pilot_data())
 
-# Page 4
+#janela de comissarios
 def load_attendant_data():
     for row in attendant_tree.get_children():
         attendant_tree.delete(row)
@@ -1368,9 +1365,7 @@ ttk.Button(Attendant_Page, text="Deletar Comissário(a)", command=open_delete_at
 #botão para retornar ao menu principal
 ttk.Button(Attendant_Page, text="Voltar ao Menu Principal", command=lambda: show_frame(main_menu)).pack(pady=10)
 
-# Page 5
-# ttk.Label(GCrew_Page, text="Mecânico/as", font=("Arial", 16)).pack(pady=20)
-# ttk.Button(GCrew_Page, text="Voltar ao Menu Principal", command=lambda: show_frame(main_menu)).pack(pady=10)
+# Janela de tripulacao de manutencao
 def load_gcrew_data():
     for row in gcrew_tree.get_children():
         gcrew_tree.delete(row)
@@ -1551,7 +1546,8 @@ ttk.Button(GCrew_Page, text="Atualizar Dados", command=load_gcrew_data).pack(pad
 ttk.Button(GCrew_Page, text="Adicionar Novo Membro", command=open_add_gcrew_page).pack(pady=10)
 ttk.Button(GCrew_Page, text="Deletar Membro", command=open_delete_gcrew_window).pack(pady=10)
 ttk.Button(GCrew_Page, text="Voltar ao Menu Principal", command=lambda: show_frame(main_menu)).pack(pady=10)
-# Page 6
+
+#Janela de localidades
 def load_location_data():
     for row in location_tree.get_children():
         location_tree.delete(row)
@@ -1709,7 +1705,7 @@ ttk.Button(Location_Page, text="Deletar Local", command=open_delete_location_win
 ttk.Button(Location_Page, text="Voltar ao Menu Principal", command=lambda: show_frame(main_menu)).pack(pady=10)
 
 
-#Page 7
+#janela de rotas
 from tkinter import Toplevel, Label, Entry, StringVar, ttk, messagebox
 
 def load_route_data():
@@ -1865,8 +1861,8 @@ ttk.Button(Route_Page, text="Voltar ao Menu Principal", command=lambda: show_fra
 #Inicializa conexão com o DB no inicio da aplicação
 initialize_app()
 
-# Start with the main menu
+# comeca no menu principal
 show_frame(main_menu)
 
-# Run the application
+# inicia o loop da aplicacao
 root.mainloop()
